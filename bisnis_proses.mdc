@@ -1,0 +1,238 @@
+# 📘 Business Process Documentation — Project Management App (Laravel 10 (TailwindCSS) + PostgreSQL)
+
+---
+
+## 🔄 Alur Bisnis Proses Aplikasi Project Management
+
+### 1. Onboarding & Workspace Lifecycle
+**Alur bisnis proses:**
+1. User daftar → sistem kirim email verifikasi.  
+2. User login → pilih: buat Workspace baru / bergabung dengan Workspace.  
+3. Jika buat Workspace:
+   - Isi nama, slug, setting awal.  
+   - Sistem simpan ke DB (`workspaces` + `workspace_members`).  
+4. Owner mengundang user lain (invite via email).  
+5. User yang diundang join → sistem atur role (Owner, Admin, Member, dll).  
+6. Owner/Admin konfigurasi label, template, retention policy.  
+7. Workspace siap digunakan.  
+
+---
+
+### 2. Pembuatan Project Lifecycle
+**Alur bisnis proses:**
+1. Project Manager pilih “Create Project”.  
+2. Isi detail: key, nama, deskripsi, tanggal mulai/selesai, visibility.  
+3. Sistem simpan ke DB (`projects`).  
+4. Tambahkan anggota ke project → sistem simpan ke DB (`project_members`).  
+5. Atur workflow (status board Kanban), custom fields, labels.  
+6. Definisikan milestone, epics, sprint roadmap.  
+7. Project aktif & siap untuk backlog planning.  
+
+---
+
+### 3. Backlog & Sprint Planning
+**Alur bisnis proses:**
+1. Project Manager / Team Lead membuat task/epic/bug/story.  
+   - Sistem simpan ke DB (`tasks`, `epics`, `sprints`).  
+2. Task diberi atribut: type, priority, assignee, due date.  
+3. Task bisa ditambahkan ke backlog, epic, atau sprint tertentu.  
+4. Backlog grooming: tim memberi estimasi (story points, hours).  
+5. Sprint planning:
+   - Tentukan timeline sprint, kapasitas.  
+   - Assign task ke sprint.  
+6. Sprint dimulai (state: planned → active).  
+
+---
+
+### 4. Execution (Pelaksanaan Task & Sprint)
+**Alur bisnis proses:**
+1. Task dikerjakan sesuai alur status board: Backlog → To Do → In Progress → Review → Done.  
+2. Anggota tim:
+   - Update status task → sistem rekam ke `activities`.  
+   - Log waktu kerja (`time_entries`).  
+   - Tambah komentar/mention (`comments`).  
+   - Upload attachment (`attachments`).  
+3. Automasi jalan:
+   - Jika status berubah → kirim notifikasi ke assignee.  
+   - Jika due date lewat → sistem trigger reminder.  
+   - Jika task selesai → close checklist otomatis.  
+4. Semua event disimpan ke `notifications` & `activities`.  
+
+---
+
+### 5. Sprint Review & Reporting
+**Alur bisnis proses:**
+1. Sprint mendekati akhir → sistem hitung progres (burndown/burnup).  
+2. Project Manager review sprint:
+   - Lihat velocity chart.  
+   - Analisis cycle time & lead time.  
+3. Sprint ditutup → state `closed`.  
+4. Task yang belum selesai → carry-over ke backlog/sprint berikutnya.  
+5. Buat catatan retrospektif (disimpan sebagai attachment/note).  
+6. Laporan sprint otomatis tersedia di dashboard (`reports`).  
+
+---
+
+### 6. Portfolio & Cross-Project Management
+**Alur bisnis proses:**
+1. Sistem kumpulkan data dari beberapa project dalam satu workspace.  
+2. Portfolio dashboard menampilkan:
+   - OKR alignment.  
+   - Roadmap lintas project.  
+   - Risiko & progress.  
+3. Project Manager / Admin generate laporan → sistem export ke CSV/JSON/PDF.  
+4. Laporan bisa di-share via email/notifikasi ke stakeholder.  
+
+---
+
+### 7. Closure & Archival
+**Alur bisnis proses:**
+1. Project Manager menandai project sebagai selesai → update status ke “archived”.  
+2. Sistem generate laporan akhir project.  
+3. Project & data terkait disimpan sesuai retention policy (`deleted_at` soft delete atau purge otomatis).  
+4. Backup disimpan dengan PostgreSQL WAL archiving.  
+5. Jika retention habis → sistem hapus permanen.  
+
+---
+
+### 8. Security & Audit
+**Alur bisnis proses:**
+1. Setiap request ke Laravel melewati **Policy/Gate** → validasi RBAC.  
+2. Aksi sensitif (create/update/delete/status change) direkam di `activities`.  
+3. Audit log mencatat:
+   - siapa (actor_id)  
+   - apa (event)  
+   - kapan (created_at)  
+   - dari mana (IP, user_agent).  
+4. Data backup & retention job berjalan otomatis.  
+5. Admin bisa meninjau log audit via dashboard.  
+
+---
+
+## 📂 Struktur Folder Laravel 10 — Project Management App (PostgreSQL)
+app/
+├── Http/
+│ ├── Controllers/
+│ │ ├── Auth/ # Login, Register, Password Reset
+│ │ ├── Workspace/ # Workspace Lifecycle
+│ │ ├── Project/ # Project Management
+│ │ ├── Task/ # Task, Subtask, Checklist
+│ │ ├── Sprint/ # Sprint, Backlog Grooming
+│ │ ├── Epic/ # Epics & Milestones
+│ │ ├── Report/ # Reporting & Dashboards
+│ │ ├── Collaboration/ # Comments, Mentions, Attachments
+│ │ ├── TimeTracking/ # Timer, Timesheets
+│ │ ├── Notification/ # Notifications, Automations
+│ │ ├── Integration/ # API, Webhooks, Import/Export
+│ │ └── Security/ # RBAC, Audit Logs
+│ │
+│ ├── Middleware/ # Middleware (RBAC, Audit, API Throttle)
+│ └── Requests/ # Form Request Validation
+│
+├── Models/
+│ ├── User.php
+│ ├── Workspace.php
+│ ├── WorkspaceMember.php
+│ ├── Project.php
+│ ├── ProjectMember.php
+│ ├── Epic.php
+│ ├── Sprint.php
+│ ├── Task.php
+│ ├── TaskChecklist.php
+│ ├── TaskChecklistItem.php
+│ ├── TaskLink.php
+│ ├── Attachment.php
+│ ├── Comment.php
+│ ├── TimeEntry.php
+│ ├── Label.php
+│ ├── Notification.php
+│ ├── Webhook.php
+│ └── Activity.php
+│
+├── Policies/ # RBAC policies
+├── Services/ # Business logic layer
+│ ├── AuthService.php
+│ ├── WorkspaceService.php
+│ ├── ProjectService.php
+│ ├── TaskService.php
+│ ├── SprintService.php
+│ ├── EpicService.php
+│ ├── ReportService.php
+│ ├── CollaborationService.php
+│ ├── TimeTrackingService.php
+│ ├── NotificationService.php
+│ └── IntegrationService.php
+│
+├── Events/ # For Notifications, Activity Logs
+├── Listeners/ # Handle Events (send emails, push notif)
+├── Jobs/ # Queued Jobs (email, webhooks, exports)
+├── Observers/ # Track model changes → Activity Logs
+├── Rules/ # Custom validation rules
+└── ViewModels/ # Data transformation for views
+
+---
+
+## 📂 Views (Blade/Tailwind)
+resources/views/
+├── auth/ # Login, Register, Forgot Password
+├── dashboard/ # User dashboard (workspace/project summary)
+├── workspace/ # List & Manage Workspaces
+├── project/ # Project detail (board, timeline, calendar)
+│ ├── boards/ # Kanban view
+│ ├── timeline/ # Gantt chart
+│ ├── calendar/ # Calendar view
+│ └── settings/ # Workflow, labels, custom fields
+├── task/ # Task details, subtasks, checklist
+├── sprint/ # Sprint planning, backlog grooming
+├── epic/ # Epic & milestone views
+├── report/ # Reports, charts, dashboards
+├── collaboration/ # Comments, attachments
+├── timetracking/ # Timer, timesheets
+├── notification/ # Notification inbox
+├── integration/ # Import/Export, API, Webhooks
+└── security/ # Audit logs, role settings
+
+---
+
+## 🧪 Testing (Pest / PHPUnit)
+
+### Fungsi Testing
+- **Menjamin kualitas kode** sebelum deploy.  
+- **Mencegah bug berulang** saat refactor.  
+- **Sebagai dokumentasi hidup** (contoh penggunaan sistem).  
+- **Meningkatkan kecepatan development** karena developer bisa refactor dengan aman.  
+
+### Jenis Test
+
+1. **Unit Test**
+   - Menguji 1 fungsi/service kecil.  
+   - Contoh:
+   ```php
+   test('velocity is calculated correctly', function () {
+       $service = new ReportService();
+       $result = $service->calculateVelocity([10, 20, 30]);
+       expect($result)->toBe(60);
+   });
+
+2. **Feature Test**
+    - Menguji alur lengkap dari fitur.
+    - Contoh:
+    test('a user can create a task', function () {
+    $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/projects/1/tasks', [
+                'title' => 'New Task',
+                'status' => 'todo',
+            ])
+            ->assertStatus(201);
+
+        expect(Task::where('title', 'New Task')->exists())->toBeTrue();
+    });
+
+3. **Integration Test**
+    - Menguji integrasi antar modul (Task + Notification + Audit Log).
+
+4. **End-to-End Test (Opsional)**
+    - Menguji aplikasi seperti user asli (klik tombol, isi form, dll) pakai Laravel Dusk/Playwright.
+
