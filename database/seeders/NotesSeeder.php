@@ -15,12 +15,12 @@ class NotesSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get the first user or create one
-        $user = User::first();
+        // Get the test user (should exist from DatabaseSeeder)
+        $user = User::where('email', 'test@example.com')->first();
         if (!$user) {
             $user = User::create([
-                'name' => 'Demo User',
-                'email' => 'demo@example.com',
+                'name' => 'Test User',
+                'email' => 'test@example.com',
                 'password' => bcrypt('password'),
             ]);
         }

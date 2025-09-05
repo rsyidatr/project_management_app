@@ -19,12 +19,8 @@ Route::get('/', function () {
     return redirect()->route('notes.index');
 });
 
-Route::get('/tailwind-test', function () {
-    return view('tailwind-test');
-});
-
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('notes.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

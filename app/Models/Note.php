@@ -60,4 +60,24 @@ class Note extends Model
     {
         return $query->where('is_archived', true);
     }
+
+    // Helper methods
+    public function getTagsArrayAttribute()
+    {
+        if (is_array($this->tags)) {
+            return $this->tags;
+        }
+        
+        if (is_string($this->tags)) {
+            $decoded = json_decode($this->tags, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        
+        return [];
+    }
+
+    public function getTagsCountAttribute()
+    {
+        return count($this->tags_array);
+    }
 }

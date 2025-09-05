@@ -13,12 +13,38 @@
                     <h1 class="text-lg font-semibold text-gray-800">Notes</h1>
                 </div>
                 
-                <button class="w-full bg-gray-900 text-white px-3 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-all duration-200 shadow-sm create-note-btn" title="Create New Note (Ctrl+N)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    New Note
-                </button>
+                <!-- New Note Button with Dropdown -->
+                <div class="relative group">
+                    <button class="w-full bg-gray-900 text-white px-3 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-all duration-200 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        New Note
+                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                        <button class="w-full px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg create-note-btn">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                Quick Note
+                            </div>
+                        </button>
+                        <a href="{{ route('notes.create') }}" class="block w-full px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Full Editor
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <!-- Navigation -->
@@ -171,13 +197,13 @@
                         </div>
 
                         <!-- Note Tags -->
-                        @if($note->tags && count($note->tags) > 0)
+                        @if($note->tags_count > 0)
                         <div class="flex flex-wrap gap-1.5 mb-4">
-                            @foreach(array_slice($note->tags, 0, 2) as $tag)
+                            @foreach(array_slice($note->tags_array, 0, 2) as $tag)
                             <span class="px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md font-medium">{{ $tag }}</span>
                             @endforeach
-                            @if(count($note->tags) > 2)
-                            <span class="px-2.5 py-1 bg-gray-100 text-xs text-gray-500 rounded-md">+{{ count($note->tags) - 2 }}</span>
+                            @if($note->tags_count > 2)
+                            <span class="px-2.5 py-1 bg-gray-100 text-xs text-gray-500 rounded-md">+{{ $note->tags_count - 2 }}</span>
                             @endif
                         </div>
                         @endif
