@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('notes.index');
 });
 
 Route::get('/tailwind-test', function () {
@@ -30,6 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Notes routes
+    Route::resource('notes', NoteController::class);
+    Route::post('/notes/{note}/favorite', [NoteController::class, 'toggleFavorite'])->name('notes.favorite');
+    Route::patch('/notes/{note}/archive', [NoteController::class, 'archive'])->name('notes.archive');
 });
 
 require __DIR__.'/auth.php';
